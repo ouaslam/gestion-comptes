@@ -102,12 +102,16 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: "Mot de passe incorrect." });
     }
 
-    const token = jwt.sign({ email: user.email, id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // Création du token JWT avec email et ID
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-    res.status(200).json({ message: 'Connexion réussie.', token });
+    res.status(200).json({ message: 'Connexion réussie.', token, user: { id: user.id, email: user.email } });
   } catch (error) {
     res.status(500).json({ error: 'Erreur serveur.' });
   }
 });
-
 module.exports = router;

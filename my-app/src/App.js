@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
+import Cookies from "js-cookie";
 
 const AuthForm = () => {
   const [isRegister, setIsRegister] = useState(false);
@@ -50,30 +51,34 @@ const AuthForm = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-
+    
       const responseData = await response.json();
-
+    
       if (!response.ok) {
         setErrorMessage(responseData.error || "Une erreur s'est produite.");
       } else {
         setSuccessMessage(responseData.message);
-
+    
         if (isRegister) {
           setEmail("");
           setPassword("");
           setConfirmPassword("");
           setTimeout(() => {
-            setIsRegister(false); // Passer en mode connexion après inscription
-            setSuccessMessage(""); // Effacer le message après la transition
+            setIsRegister(false);
+            setSuccessMessage("");
           }, 2000);
         } else {
-          // Si l'utilisateur est en mode connexion, redirection vers Google
-          window.location.href = "https://www.google.com";
+          // Stocker le token dans localStorage
+          Cookies.set("token", responseData.token, { expires: 7, path: "" });  // Expire après 7 jours
+          
+          // Rediriger vers localhost:6000 avec le token en paramètre d'URL
+          window.location.href = `http://localhost:3001?token=${responseData.token}`;
         }
       }
     } catch (error) {
       setErrorMessage("Une erreur s'est produite lors de l'envoi de la requête.");
     }
+    
   };
 
   return (
